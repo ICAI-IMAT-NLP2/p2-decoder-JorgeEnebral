@@ -1,7 +1,7 @@
 import torch
 import pytest
 
-from src.decoder import AttentionHead, MultiHeadAttention, FeedForward, TransformerDecoderLayer, TransformerDecoder, TransformerForLanguageModeling
+from src.decoder import MaskedAttentionHead, MultiHeadMaskedAttention, FeedForward, TransformerDecoderLayer, TransformerDecoder, TransformerForLanguageModeling
 
 @pytest.fixture
 def seed():
@@ -17,7 +17,7 @@ def test_attention_head():
     x = torch.rand(batch_size, seq_len, d_model)
     mask = torch.tril(torch.ones(seq_len, seq_len)).unsqueeze(0).repeat(batch_size, 1, 1)
 
-    attention_head = AttentionHead(d_model, d_k, d_q, d_v)
+    attention_head = MaskedAttentionHead(d_model, d_k, d_q, d_v)
     output = attention_head(x, mask)
 
     assert output.shape == (batch_size, seq_len, d_v), "Output shape mismatch in AttentionHead"
@@ -32,7 +32,7 @@ def test_multi_head_attention():
     x = torch.rand(batch_size, seq_len, d_model)
     mask = torch.tril(torch.ones(seq_len, seq_len)).unsqueeze(0).repeat(batch_size, 1, 1)
 
-    multi_head_attention = MultiHeadAttention(d_model, num_heads)
+    multi_head_attention = MultiHeadMaskedAttention(d_model, num_heads)
     output = multi_head_attention(x, mask)
 
     assert output.shape == (batch_size, seq_len, d_model), "Output shape mismatch in MultiHeadAttention"
@@ -62,7 +62,7 @@ def test_transformer_decoder_layer():
     x = torch.rand((batch_size, seq_len, d_model))
 
     # Create a mask that prevents attending to future tokens (lower triangular)
-    mask = torch.tril(torch.ones(seq_len, seq_len)).unsqueeze(0)  # Shape: (1, seq_len, seq_len)
+    mask = torch.tril(torch.ones(seq_len, seq_len)).unsqueeze(0).repeat(batch_size, 1, 1)  # Shape: (1, seq_len, seq_len)
 
     # Instantiate the decoder layer
     decoder_layer = TransformerDecoderLayer(d_model, num_heads, intermediate_size)
@@ -75,8 +75,6 @@ def test_transformer_decoder_layer():
 
     # The outputs should be different if the mask is applied correctly
     assert not torch.allclose(output_with_mask, output_no_mask), "Mask is not being applied; outputs are identical."
-
-
 
 @pytest.mark.order(5)
 def test_transformer_decoder():

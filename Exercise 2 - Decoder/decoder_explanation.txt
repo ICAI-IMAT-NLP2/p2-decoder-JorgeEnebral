@@ -1,0 +1,31 @@
+
+The objective is to achieve the next attention matrix, in which each token just attends to the next word
+att_scores =   [[0, 5, 0, 0, 0], 
+                [0, 0, 5, 0, 0], 
+                [0, 0, 0, 5, 0], 
+                [0, 0, 0, 0, 5], 
+                [5, 0, 0, 0, 0]]
+
+att_matrix =   [[0, 1, 0, 0, 0], 
+                [0, 0, 1, 0, 0], 
+                [0, 0, 0, 1, 0], 
+                [0, 0, 0, 0, 1], 
+                [1, 0, 0, 0, 0]]
+
+att_scores = Q @ K.T, so lets make for example Q = att_scores and K.T = Id(5)
+Q = X @ W_Q, we take W_Q as the Id(5), this way X = att_scores
+K = X @ W_K, so in order to make K = Id(5), W_K = X^(-1)
+
+Once achieved the attention matrix, the prediction is the following:
+pred = softmax( ( att_matrix @ W_V @ W_O + X ) @ W_U )
+
+We want that pred = att_matrix, so W_V and W_O are Id(5)
+pred = 2*X @ W_U. 
+
+W_U is y*Id(5), y for example being 5.
+pred = 10*X
+softmax(pred)= [[0, 1, 0, 0, 0], 
+                [0, 0, 1, 0, 0], 
+                [0, 0, 0, 1, 0], 
+                [0, 0, 0, 0, 1], 
+                [1, 0, 0, 0, 0]]

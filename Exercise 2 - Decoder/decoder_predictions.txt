@@ -1,0 +1,11 @@
+Input: Predicted next token:
+[BOS] I
+I play
+play tennis
+tennis [EOS]
+
+Input: Predicted next token (with mask):
+[BOS] [EOS]
+I [EOS]
+play [EOS]
+tennis [EOS]
